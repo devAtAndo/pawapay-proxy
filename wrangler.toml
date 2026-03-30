@@ -3,9 +3,9 @@ main = "src/index.js"
 compatibility_date = "2024-12-01"
 
 # Route: bind to your domain (uncomment and edit when ready)
-# routes = [
-#   { pattern = "pawapay-proxy.andofoods.co/*", zone_name = "andofoods.co" }
-# ]
+ routes = [
+   { pattern = "pawapay-proxy.andofoods.co/*", zone_name = "andofoods.co" }
+ ]
 
 # Or use a workers.dev subdomain for testing:
 # workers_dev = true
