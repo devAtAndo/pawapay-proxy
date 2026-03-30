@@ -1,0 +1,10 @@
+node_modules
+
+# wrangler 
+dist
+build
+*.log
+*.lock
+
+# tests
+tests

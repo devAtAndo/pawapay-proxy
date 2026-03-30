@@ -1,0 +1,22 @@
+name = "pawapay-callback-proxy"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+# Route: bind to your domain (uncomment and edit when ready)
+# routes = [
+#   { pattern = "pawapay-proxy.andofoods.co/*", zone_name = "andofoods.co" }
+# ]
+
+# Or use a workers.dev subdomain for testing:
+# workers_dev = true
+
+# Environment variables — set your actual downstream URLs here
+# For secrets (if needed later), use: npx wrangler secret put SECRET_NAME
+
+[vars]
+# CUSTOMER_DEPOSIT_CALLBACK_URL = "https://app.andofoods.co/api/payments/pawapay/callback/deposit/"
+# CUSTOMER_PAYOUT_CALLBACK_URL = "https://app.andofoods.co/api/payments/pawapay/callback/payout/"
+# CUSTOMER_REFUND_CALLBACK_URL = "https://app.andofoods.co/api/payments/pawapay/callback/refund/"
+ RIDER_DEPOSIT_CALLBACK_URL = "https://staging-rider-ando.thepattern.app/api/payments/callback/pawapay/deposit/"
+ RIDER_PAYOUT_CALLBACK_URL = "https://staging-rider-ando.thepattern.app/api/payments/callback/pawapay/payout/"
+ RIDER_REFUND_CALLBACK_URL = "https://staging-rider-ando.thepattern.app/api/payments/callback/pawapay/refund/"
