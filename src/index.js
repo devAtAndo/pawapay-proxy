@@ -172,6 +172,7 @@ export default {
     // ---- Forward to downstream ----
     const forwardHeaders = {
       'Content-Type': request.headers.get('content-type') || 'application/json',
+      'Content-Length': rawBody.length.toString(),
     };
 
     // Forward PawaPay signature for downstream verification
@@ -192,7 +193,7 @@ export default {
       );
 
       if (downstreamResponse.ok) {
-        return new Response('OK', { status: 200 });
+        return Response.json({ status: 'OK' }, { status: 200 });
       }
 
       // Downstream error — still return 200 to PawaPay to prevent retries
@@ -200,11 +201,11 @@ export default {
       console.warn(
         `Downstream returned ${downstreamResponse.status} for ${transactionId}`,
       );
-      return new Response('Forwarded (downstream error)', { status: 200 });
+      return Response.json({ status: 'error' }, { status: 200 });
     } catch (err) {
       // Downstream completely unreachable — return 500 so PawaPay retries
       console.error(`Failed to reach ${downstreamUrl}: ${err.message}`);
-      return new Response('Downstream unreachable', { status: 500 });
+      return Response.json({ status: 'error' }, { status: 500 });
     }
   },
 };
