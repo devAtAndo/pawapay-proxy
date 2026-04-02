@@ -18,10 +18,10 @@ PawaPay ──POST──▶ Worker ──reads metadata──▶ service=CUST  �
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start the worker locally (runs on http://localhost:8787)
-npx wrangler dev
+pnpx wrangler dev
 
 # In another terminal, run the test suite
 node tests/test_routing.js
@@ -38,10 +38,10 @@ The test suite sends 10 scenarios including happy paths, edge cases, and error h
 
 ```bash
 # Login to Cloudflare (first time only)
-npx wrangler login
+pnpx wrangler login
 
 # Deploy
-npx wrangler deploy
+pnpx wrangler deploy
 ```
 
 ### Custom domain setup
