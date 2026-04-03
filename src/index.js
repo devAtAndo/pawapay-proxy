@@ -30,6 +30,7 @@
  * @property {string} RIDER_DEPOSIT_CALLBACK_URL
  * @property {string} RIDER_PAYOUT_CALLBACK_URL
  * @property {string} RIDER_REFUND_CALLBACK_URL
+ * @property {string} PAWAPAY_WEBHOOK_SECRET
  */
 
 // ---------------------------------------------------------------------------
@@ -37,18 +38,31 @@
 // ---------------------------------------------------------------------------
 
 /**
- * Extract the `service` value from PawaPay's metadata array.
- * PawaPay metadata is an array of { fieldName, fieldValue } objects.
+ * Extract the `service` value from PawaPay's metadata.
+ * Supports both formats:
+ *   - Object: { "service": "RIDER", ... }
+ *   - Array:  [{ fieldName: "service", fieldValue: "RIDER" }, ...]
  *
- * @param {Array<{fieldName: string, fieldValue: string}>} metadata
+ * @param {Object|Array<{fieldName: string, fieldValue: string}>} metadata
  * @returns {string|null}
  */
 function extractService(metadata) {
-  if (!Array.isArray(metadata)) return null;
+  if (!metadata) return null;
 
-  const serviceField = metadata.find((entry) => entry.fieldName === 'service');
+  // Object format: { service: "RIDER", ... }
+  if (typeof metadata === 'object' && !Array.isArray(metadata)) {
+    return metadata.service || null;
+  }
 
-  return serviceField ? serviceField.fieldValue : null;
+  // Array format: [{ fieldName: "service", fieldValue: "RIDER" }]
+  if (Array.isArray(metadata)) {
+    const serviceField = metadata.find(
+      (entry) => entry.fieldName === 'service',
+    );
+    return serviceField ? serviceField.fieldValue : null;
+  }
+
+  return null;
 }
 
 /**
@@ -170,15 +184,39 @@ export default {
     }
 
     // ---- Forward to downstream ----
+    // Compute HMAC-SHA256 signature for downstream verification using shared secret
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(env.PAWAPAY_WEBHOOK_SECRET),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign'],
+    );
+    const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(rawBody));
+    const hmacSignature = Array.from(new Uint8Array(sig))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    // Forward PawaPay's original signature headers for downstream verification
+    const pawaPayHeaders = [
+      'signature',
+      'signature-input',
+      'signature-date',
+      'content-digest',
+    ];
+
     const forwardHeaders = {
-      'Content-Type': request.headers.get('content-type') || 'application/json',
-      'Content-Length': rawBody.length.toString(),
+      'content-type': request.headers.get('content-type') || 'application/json',
+      'content-length': rawBody.length.toString(),
+      'x-pawapay-signature': hmacSignature,
     };
 
-    // Forward PawaPay signature for downstream verification
-    const signature = request.headers.get('x-pawapay-signature');
-    if (signature) {
-      forwardHeaders['x-pawapay-signature'] = signature;
+    for (const name of pawaPayHeaders) {
+      const value = request.headers.get(name);
+      if (value) {
+        forwardHeaders[name] = value;
+      }
     }
 
     try {
@@ -198,8 +236,10 @@ export default {
 
       // Downstream error — still return 200 to PawaPay to prevent retries
       // The downstream app handles its own error recovery
+      const downstreamBody = await downstreamResponse.text();
       console.warn(
         `Downstream returned ${downstreamResponse.status} for ${transactionId}`,
+        `Response body: ${downstreamBody}`,
       );
       return Response.json({ status: 'error' }, { status: 200 });
     } catch (err) {
