@@ -141,6 +141,13 @@ export default {
       return new Response('Not found', { status: 404 });
     }
 
+    // ---- Log incoming headers from PawaPay ----
+    const incomingHeaders = Object.fromEntries(request.headers);
+    console.log(
+      `Incoming PawaPay headers on ${url.pathname}:`,
+      JSON.stringify(incomingHeaders, null, 2),
+    );
+
     // ---- Parse body ----
     let payload;
     let rawBody;
@@ -152,6 +159,8 @@ export default {
       console.error('Invalid JSON in callback body');
       return new Response('Invalid JSON', { status: 200 });
     }
+
+    console.log('Incoming PawaPay payload:', JSON.stringify(payload, null, 2));
 
     // ---- Extract routing info ----
     const transactionId = getTransactionId(payload);
@@ -218,6 +227,11 @@ export default {
         forwardHeaders[name] = value;
       }
     }
+
+    console.log(
+      `Outgoing headers to ${downstreamUrl}:`,
+      JSON.stringify(forwardHeaders, null, 2),
+    );
 
     try {
       const downstreamResponse = await fetch(downstreamUrl, {

@@ -14,9 +14,14 @@ compatibility_date = "2024-12-01"
 # For secrets (if needed later), use: npx wrangler secret put SECRET_NAME
 
 [vars]
- CUSTOMER_DEPOSIT_CALLBACK_URL  = "https://valerianaceous-advisably-lanie.ngrok-free.dev/api/payments/pawapay-webhook/"
- CUSTOMER_PAYOUT_CALLBACK_URL   = "https://valerianaceous-advisably-lanie.ngrok-free.dev/api/payments/pawapay-webhook/"
- CUSTOMER_REFUND_CALLBACK_URL   = "https://valerianaceous-advisably-lanie.ngrok-free.dev/api/payments/pawapay-webhook/"
+ CUSTOMER_DEPOSIT_CALLBACK_URL  = "https://ando.thepattern.app/api/payments/pawapay-webhook/"
+ CUSTOMER_PAYOUT_CALLBACK_URL   = "https://ando.thepattern.app/api/payments/pawapay-webhook/"
+ CUSTOMER_REFUND_CALLBACK_URL   = "https://ando.thepattern.app/api/payments/pawapay-webhook/"
  RIDER_DEPOSIT_CALLBACK_URL     = "https://staging-rider-ando.thepattern.app/api/payments/callback/pawapay/deposit/"
  RIDER_PAYOUT_CALLBACK_URL      = "https://staging-rider-ando.thepattern.app/api/payments/callback/pawapay/payout/"
  RIDER_REFUND_CALLBACK_URL      = "https://staging-rider-ando.thepattern.app/api/payments/callback/pawapay/refund/"
+
+[observability]
+[observability.logs]
+enabled = false
+invocation_logs = true
