@@ -1,4 +1,4 @@
-name = "pawapay-callback-proxy"
+name = "staging-pawapay-proxy"
 main = "src/index.js"
 compatibility_date = "2024-12-01"
 
